@@ -1,0 +1,46 @@
+# STAGE-1(BASE-IMAGE)
+
+FROM python:3.11-slim AS builder
+
+# WORKING DIRECTORY
+
+WORKDIR /app
+
+# COPY 
+
+COPY . .
+
+# DEPENDENCIES DOWNLOAD
+
+RUN pip install -r requirements.txt --target=/app/deps
+
+# EXPOSE 
+
+EXPOSE 5000
+
+# STAGE-2(BASE-IMAGE)
+
+FROM gcr.io/distroless/python3-debian12:debug
+
+# WORKDIR
+
+WORKDIR /app
+
+# COPY
+
+COPY --from=builder /app/deps /app/deps
+COPY app.py .
+COPY templates/ ./templates/
+
+# EXPOSE
+
+EXPOSE 5000
+
+# Set Python path to include dependencies
+
+ENV PYTHONPATH=/app/deps
+
+
+# SERVE THE APPS
+
+CMD ["app.py"]
