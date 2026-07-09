@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    volumes:
+      - two-tier:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    networks:
+      - two-tier-app_network-project
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uadmin", "-padmin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  flask-app:
+    build: .
+    image: heyyprakhar1/flask-image:latest
+    container_name: two-tier-flask-app
+    restart: unless-stopped 
+    ports:
+      - "5000:5000"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DB: mydb
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - two-tier-app_network-project
+
+volumes:
+  two-tier:
+
+networks:
+  two-tier-app_network-project:
