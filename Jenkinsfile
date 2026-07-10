@@ -37,20 +37,18 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo "Deploying Application..."
-                deploy(
-                    "darjihardik",
-                    "todo-app",
-                    "latest",
-                    "todo-app",
-                    "5000",
-                    "5000"
-                )
-            }
-        }
+    stage('Deploy') {
+     steps {
+        deploy(
+            "darjihardik",
+            "todo-app",
+            "latest",
+            "todo-app",
+            "5000",
+            "5000"
+        )
     }
+}
 
     post {
 
